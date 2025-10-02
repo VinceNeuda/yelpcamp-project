@@ -2,8 +2,13 @@
 const express = require('express');
 const ejsMate = require('ejs-mate');
 const path = require('path')
+const mongoose = require('mongoose');
 
 const app = express();
+
+mongoose.connect('mongodb://127.0.0.1:27017/YelpCampDB')   //connects to local DB (or creates if it does not already exists)
+    .then(() => console.log('MongoDB connected'))           //successful connection
+    .catch(err => console.error('Connection error:', err)); //failed connection
 
 //MIDDLEWARE
 app.engine('ejs', ejsMate)
