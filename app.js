@@ -3,6 +3,7 @@ const express = require('express');
 const ejsMate = require('ejs-mate');
 const path = require('path')
 const mongoose = require('mongoose');
+const methodOverride = require('method-override');
 
 const campModel = require('./models/campground');
 
@@ -18,7 +19,7 @@ app.set('views', path.join(__dirname, 'views')); //tells Express where to find '
 app.set('view engine', 'ejs');
 
 app.use(express.urlencoded({ extended: true })); //parse incoming data sent by <form> submissions
-
+app.use(methodOverride('_method'));
 
 
 //ROUTES
@@ -38,12 +39,22 @@ app.get('/campgrounds/new', async (req, res) => {
 app.post('/campgrounds', async (req, res) => {
     const campground = new campModel(req.body.campground)
     await campground.save();
-    res.redirect(`campgrounds/${campground._id}`)
+    res.redirect(`campgrounds/${campground._id}`);
 })
 
 app.get('/campgrounds/:id', async (req, res) => {
     const campground = await campModel.findById(req.params.id);
     res.render('campgrounds/show', { campground });
+})
+
+app.get('/campgrounds/:id/edit', async (req, res) => {
+    const campground = await campModel.findById(req.params.id);
+    res.render('campgrounds/edit', { campground });
+})
+
+app.put('/campgrounds/:id', async (req, res) => {
+    const campground = await campModel.findByIdAndUpdate(req.params.id, { ...req.body.campground });
+    res.redirect(`/campgrounds/${campground._id}`);
 })
 
 app.listen(3000, () => {
