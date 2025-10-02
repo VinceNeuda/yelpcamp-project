@@ -23,16 +23,9 @@ app.get('/', (req, res) => {
 })
 
 app.get('/campgrounds', async (req, res) => {
-    const firstCamp = campModel({
-        title: 'My First Camp',
-        location: 'Dublin, Ireland',
-        description: 'Outdoor camping',
-        price: 12
-    })
-    await firstCamp.save();
-    res.render('campgrounds', { firstCamp })
+    const campgrounds = await campModel.find({})
+    res.render('campgrounds/index', { campgrounds })
 })
-
 
 app.listen(3000, () => {
     console.log('App is listening on port 3000!')
