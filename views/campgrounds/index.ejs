@@ -12,11 +12,10 @@
     <ul>
         <% for(campground of campgrounds){ %>
             <li>
-                <h2>Title: <%= campground.title %>
-                </h2>
+                <a href="/campgrounds/<%= campground._id %>">Title: <%= campground.title %></a>
 
-                <% } %>
             </li>
+            <% } %>
     </ul>
 </body>
 

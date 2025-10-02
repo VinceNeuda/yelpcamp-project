@@ -19,14 +19,19 @@ app.set('view engine', 'ejs');
 
 //ROUTES
 app.get('/', (req, res) => {
-    res.render('homepage')
+    res.render('homepage');
 })
 
 app.get('/campgrounds', async (req, res) => {
-    const campgrounds = await campModel.find({})
-    res.render('campgrounds/index', { campgrounds })
+    const campgrounds = await campModel.find({});
+    res.render('campgrounds/index', { campgrounds });
+})
+
+app.get('/campgrounds/:id', async (req, res) => {
+    const campground = await campModel.findById(req.params.id);
+    res.render('campgrounds/show', { campground });
 })
 
 app.listen(3000, () => {
-    console.log('App is listening on port 3000!')
+    console.log('App is listening on port 3000!');
 })
