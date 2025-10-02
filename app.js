@@ -4,6 +4,8 @@ const ejsMate = require('ejs-mate');
 const path = require('path')
 const mongoose = require('mongoose');
 
+const campModel = require('./models/campground');
+
 const app = express();
 
 mongoose.connect('mongodb://127.0.0.1:27017/YelpCampDB')   //connects to local DB (or creates if it does not already exists)
@@ -19,6 +21,18 @@ app.set('view engine', 'ejs');
 app.get('/', (req, res) => {
     res.render('homepage')
 })
+
+app.get('/campgrounds', async (req, res) => {
+    const firstCamp = campModel({
+        title: 'My First Camp',
+        location: 'Dublin, Ireland',
+        description: 'Outdoor camping',
+        price: 12
+    })
+    await firstCamp.save();
+    res.render('campgrounds', { firstCamp })
+})
+
 
 app.listen(3000, () => {
     console.log('App is listening on port 3000!')
