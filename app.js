@@ -7,6 +7,8 @@ const methodOverride = require('method-override');
 const appError = require('./utils/appError');
 const wrapAsync = require('./utils/wrapAsync');
 
+const { campgroundSchema } = require('./joischemas')
+
 const campModel = require('./models/campground');
 
 const app = express();
@@ -23,6 +25,15 @@ app.set('view engine', 'ejs');
 app.use(express.urlencoded({ extended: true })); //parse incoming data sent by <form> submissions
 app.use(methodOverride('_method'));
 
+const validateCampground = (req, res, next) => {
+    const { error } = campgroundSchema.validate(req.body);
+    if (error) {
+        const msg = error.details.map(el => el.message).join(',')
+        throw new appError(msg, 400)
+    } else {
+        next();
+    }
+}
 
 //ROUTES
 app.get('/', (req, res) => {
@@ -38,11 +49,10 @@ app.get('/campgrounds/new', wrapAsync(async (req, res) => {
     res.render('campgrounds/new');
 }))
 
-app.post('/campgrounds', wrapAsync(async (req, res, next) => {
+app.post('/campgrounds', validateCampground, wrapAsync(async (req, res) => {
     const campground = new campModel(req.body.campground)
     await campground.save();
     res.redirect(`campgrounds/${campground._id}`);
-
 }))
 
 app.get('/campgrounds/:id', wrapAsync(async (req, res) => {
@@ -55,13 +65,9 @@ app.get('/campgrounds/:id/edit', wrapAsync(async (req, res) => {
     res.render('campgrounds/edit', { campground });
 }))
 
-app.put('/campgrounds/:id', wrapAsync(async (req, res) => {
-    try {
-        const campground = await campModel.findByIdAndUpdate(req.params.id, { ...req.body.campground });
-        res.redirect(`/campgrounds/${campground._id}`);
-    } catch (e) {
-        next(e);
-    }
+app.put('/campgrounds/:id', validateCampground, wrapAsync(async (req, res,) => {
+    const campground = await campModel.findByIdAndUpdate(req.params.id, { ...req.body.campground });
+    res.redirect(`/campgrounds/${campground._id}`);
 }))
 
 app.delete('/campgrounds/:id', wrapAsync(async (req, res) => {
@@ -69,9 +75,23 @@ app.delete('/campgrounds/:id', wrapAsync(async (req, res) => {
     res.redirect('/campgrounds')
 }))
 
+//if all else fails
+// app.all(/(.*)/, (req, res) => {
+//     res.status(404).send("Error: Not Found")
+// })
+
+app.all(/(.*)/, (req, res, next) => {   //centralised error handler for unmatched requests
+    next(new appError('Page Not Found', 404))
+})
+
 //centralised error handler
+// app.use((err, req, res, next) => {
+//     res.send('Error: Something went wrong!')
+// })
 app.use((err, req, res, next) => {
-    res.send('Error: Something went wrong!')
+    // destructure from err object with default status and message if not found
+    const { status = 500, message = 'Something went wrong' } = err;
+    res.status(status).render('errorpage', { err }); // optional
 })
 
 //app connectivity test
