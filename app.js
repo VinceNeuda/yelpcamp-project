@@ -36,10 +36,14 @@ app.get('/campgrounds/new', async (req, res) => {
     res.render('campgrounds/new');
 })
 
-app.post('/campgrounds', async (req, res) => {
-    const campground = new campModel(req.body.campground)
-    await campground.save();
-    res.redirect(`campgrounds/${campground._id}`);
+app.post('/campgrounds', async (req, res, next) => {
+    try {
+        const campground = new campModel(req.body.campground)
+        await campground.save();
+        res.redirect(`campgrounds/${campground._id}`);
+    } catch (e) {
+        next(e);
+    }
 })
 
 app.get('/campgrounds/:id', async (req, res) => {
@@ -53,8 +57,12 @@ app.get('/campgrounds/:id/edit', async (req, res) => {
 })
 
 app.put('/campgrounds/:id', async (req, res) => {
-    const campground = await campModel.findByIdAndUpdate(req.params.id, { ...req.body.campground });
-    res.redirect(`/campgrounds/${campground._id}`);
+    try {
+        const campground = await campModel.findByIdAndUpdate(req.params.id, { ...req.body.campground });
+        res.redirect(`/campgrounds/${campground._id}`);
+    } catch (e) {
+        next(e);
+    }
 })
 
 app.delete('/campgrounds/:id', async (req, res) => {
@@ -62,6 +70,12 @@ app.delete('/campgrounds/:id', async (req, res) => {
     res.redirect('/campgrounds')
 })
 
+//centralised error handler
+app.use((err, req, res, next) => {
+    res.send('Error: Something went wrong!')
+})
+
+//app connectivity test
 app.listen(3000, () => {
     console.log('App is listening on port 3000!');
 })
