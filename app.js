@@ -10,6 +10,7 @@ const wrapAsync = require('./utils/wrapAsync');
 const { campgroundSchema } = require('./joischemas')
 
 const campModel = require('./models/campground');
+const reviewModel = require('./models/review');
 
 const app = express();
 
