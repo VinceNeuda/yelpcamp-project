@@ -4,6 +4,8 @@ const ejsMate = require('ejs-mate');
 const path = require('path')
 const mongoose = require('mongoose');
 const methodOverride = require('method-override');
+const appError = require('./utils/appError');
+const wrapAsync = require('./utils/wrapAsync');
 
 const campModel = require('./models/campground');
 
@@ -27,48 +29,45 @@ app.get('/', (req, res) => {
     res.render('homepage');
 })
 
-app.get('/campgrounds', async (req, res) => {
+app.get('/campgrounds', wrapAsync(async (req, res) => {
     const campgrounds = await campModel.find({});
     res.render('campgrounds/index', { campgrounds });
-})
+}))
 
-app.get('/campgrounds/new', async (req, res) => {
+app.get('/campgrounds/new', wrapAsync(async (req, res) => {
     res.render('campgrounds/new');
-})
+}))
 
-app.post('/campgrounds', async (req, res, next) => {
-    try {
-        const campground = new campModel(req.body.campground)
-        await campground.save();
-        res.redirect(`campgrounds/${campground._id}`);
-    } catch (e) {
-        next(e);
-    }
-})
+app.post('/campgrounds', wrapAsync(async (req, res, next) => {
+    const campground = new campModel(req.body.campground)
+    await campground.save();
+    res.redirect(`campgrounds/${campground._id}`);
 
-app.get('/campgrounds/:id', async (req, res) => {
+}))
+
+app.get('/campgrounds/:id', wrapAsync(async (req, res) => {
     const campground = await campModel.findById(req.params.id);
     res.render('campgrounds/show', { campground });
-})
+}))
 
-app.get('/campgrounds/:id/edit', async (req, res) => {
+app.get('/campgrounds/:id/edit', wrapAsync(async (req, res) => {
     const campground = await campModel.findById(req.params.id);
     res.render('campgrounds/edit', { campground });
-})
+}))
 
-app.put('/campgrounds/:id', async (req, res) => {
+app.put('/campgrounds/:id', wrapAsync(async (req, res) => {
     try {
         const campground = await campModel.findByIdAndUpdate(req.params.id, { ...req.body.campground });
         res.redirect(`/campgrounds/${campground._id}`);
     } catch (e) {
         next(e);
     }
-})
+}))
 
-app.delete('/campgrounds/:id', async (req, res) => {
+app.delete('/campgrounds/:id', wrapAsync(async (req, res) => {
     await campModel.findByIdAndDelete(req.params.id);
     res.redirect('/campgrounds')
-})
+}))
 
 //centralised error handler
 app.use((err, req, res, next) => {
