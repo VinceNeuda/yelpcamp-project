@@ -76,6 +76,15 @@ app.delete('/campgrounds/:id', wrapAsync(async (req, res) => {
     res.redirect('/campgrounds')
 }))
 
+app.post('/campgrounds/:id/reviews', wrapAsync(async (req, res) => {
+    const campground = await campModel.findById(req.params.id);
+    const review = new reviewModel(req.body.review);
+    campground.reviews.push(review);
+    await review.save();
+    await campground.save();
+    res.redirect(`/campgrounds/${campground._id}`)
+}))
+
 //if all else fails
 // app.all(/(.*)/, (req, res) => {
 //     res.status(404).send("Error: Not Found")
