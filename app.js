@@ -7,7 +7,7 @@ const methodOverride = require('method-override');
 const appError = require('./utils/appError');
 const wrapAsync = require('./utils/wrapAsync');
 
-const { campgroundSchema } = require('./joischemas')
+const { campgroundSchema, reviewSchema } = require('./joischemas')
 
 const campModel = require('./models/campground');
 const reviewModel = require('./models/review');
@@ -28,6 +28,16 @@ app.use(methodOverride('_method'));
 
 const validateCampground = (req, res, next) => {
     const { error } = campgroundSchema.validate(req.body);
+    if (error) {
+        const msg = error.details.map(el => el.message).join(',')
+        throw new appError(msg, 400)
+    } else {
+        next();
+    }
+}
+
+const validateReview = (req, res, next) => {
+    const { error } = reviewSchema.validate(req.body);
     if (error) {
         const msg = error.details.map(el => el.message).join(',')
         throw new appError(msg, 400)
@@ -76,7 +86,7 @@ app.delete('/campgrounds/:id', wrapAsync(async (req, res) => {
     res.redirect('/campgrounds')
 }))
 
-app.post('/campgrounds/:id/reviews', wrapAsync(async (req, res) => {
+app.post('/campgrounds/:id/reviews', validateReview, wrapAsync(async (req, res) => {
     const campground = await campModel.findById(req.params.id);
     const review = new reviewModel(req.body.review);
     campground.reviews.push(review);
