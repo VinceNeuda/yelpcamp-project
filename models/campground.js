@@ -1,6 +1,7 @@
 
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
+const Review = require('./review');
 
 const campgroundSchema = new Schema({
     title: String,
@@ -14,6 +15,13 @@ const campgroundSchema = new Schema({
             ref: 'review'
         }
     ]
+})
+
+// If camp is deleted trigger deletion of associated reviews
+campgroundSchema.post('findOneAndDelete', async function (doc) {
+    if (doc) { //if product array is not empty
+        await Review.deleteMany({ _id: { $in: doc.reviews } });
+    }
 })
 
 module.exports = mongoose.model('campground', campgroundSchema)
