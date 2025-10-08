@@ -23,6 +23,7 @@ app.set('view engine', 'ejs');
 
 app.use(express.urlencoded({ extended: true })); //parse incoming data sent by <form> submissions
 app.use(methodOverride('_method'));
+app.use(express.static(path.join(__dirname, 'public'))) //serving static files
 
 //ROUTES
 app.get('/', (req, res) => {
