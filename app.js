@@ -5,6 +5,7 @@ const path = require('path')
 const mongoose = require('mongoose');
 const methodOverride = require('method-override');
 const appError = require('./utils/appError');
+const session = require('express-session');
 
 //import route handlers
 const campgroundRoutes = require('./routes/campgrounds');
@@ -23,6 +24,18 @@ app.set('view engine', 'ejs');
 
 app.use(express.urlencoded({ extended: true })); //parse incoming data sent by <form> submissions
 app.use(methodOverride('_method'));
+
+const sessionConfig = {
+    secret: 'secretCode',
+    resave: false,
+    saveUninitialized: true,
+    cookie: {
+        HttpOnly: true,
+        expired: Date.now() + 1000 * 60 * 60 * 24 * 7,
+        maxAge: 1000 * 60 * 60 * 24 * 7
+    }
+}
+app.use(session(sessionConfig))
 
 //ROUTES
 app.get('/', (req, res) => {
