@@ -10,6 +10,7 @@ const flash = require('connect-flash');
 
 const passport = require('passport');
 const LocalStrategy = require('passport-local');
+const userModel = require('./models/user');
 
 //import route handlers
 const campgroundRoutes = require('./routes/campgrounds');
@@ -42,6 +43,14 @@ const sessionConfig = {
 }
 app.use(session(sessionConfig));
 app.use(flash());
+
+app.use(passport.initialize());
+app.use(passport.session()); //refer to docs
+passport.use(new LocalStrategy(userModel.authenticate()));
+
+passport.serializeUser(userModel.serializeUser()) //how the user data is stored in the session
+passport.deserializeUser(userModel.deserializeUser()); //turns the session data back into a full user object
+
 
 app.use((req, res, next) => {
     res.locals.success = req.flash('success');
