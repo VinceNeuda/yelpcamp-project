@@ -14,7 +14,11 @@ const campgroundSchema = new Schema({
             type: Schema.Types.ObjectId,
             ref: 'review'
         }
-    ]
+    ],
+    author: {
+        type: Schema.Types.ObjectId,
+        ref: 'user'
+    }
 })
 
 // If camp is deleted trigger deletion of associated reviews

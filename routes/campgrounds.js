@@ -18,13 +18,14 @@ router.get('/new', isLoggedIn, wrapAsync(async (req, res) => {
 
 router.post('/', isLoggedIn, validateCampground, wrapAsync(async (req, res) => {
     const campground = new campModel(req.body.campground)
+    campground.author = req.user._id;
     await campground.save();
     req.flash('success', 'Successfully created campground!');
     res.redirect(`campgrounds/${campground._id}`);
 }))
 
 router.get('/:id', wrapAsync(async (req, res) => {
-    const campground = await campModel.findById(req.params.id).populate('reviews');
+    const campground = await campModel.findById(req.params.id).populate('reviews').populate('author');
     if (!campground) {
         req.flash('error', 'Campground does not exist')
         return res.redirect('/campgrounds');
