@@ -1,5 +1,6 @@
 const appError = require('./utils/appError');
 const { campgroundSchema, reviewSchema } = require('./joischemas');
+const campModel = require('./models/campground');
 
 module.exports.isLoggedIn = (req, res, next) => {
     if (!req.isAuthenticated()) {
@@ -33,6 +34,16 @@ module.exports.validateReview = (req, res, next) => {
 module.exports.storeReturnTo = (req, res, next) => {
     if (req.session.returnTo) {
         res.locals.returnTo = req.session.returnTo;
+    }
+    next();
+}
+
+module.exports.isAuthor = async (req, res, next) => {
+    const { id } = req.params;
+    const campground = await campModel.findById(id);
+    if (!campground.author.equals(req.user._id)) {
+        req.flash('error', 'You do not have permission')
+        return res.redirect(`/campgrounds/${id}`);
     }
     next();
 }
