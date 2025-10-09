@@ -14,7 +14,8 @@ const userModel = require('./models/user');
 
 //import route handlers
 const campgroundRoutes = require('./routes/campgrounds');
-const reviewRoutes = require('./routes/reviews')
+const reviewRoutes = require('./routes/reviews');
+const userRoutes = require('./routes/users');
 
 const app = express();
 
@@ -65,7 +66,7 @@ app.get('/', (req, res) => {
 
 app.use('/campgrounds', campgroundRoutes);
 app.use('/campgrounds/:id/reviews', reviewRoutes);
-
+app.use('/', userRoutes);
 
 //ERROR HANDLERS
 //if all else fails
