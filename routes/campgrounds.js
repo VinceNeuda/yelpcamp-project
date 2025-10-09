@@ -31,22 +31,31 @@ router.get('/new', wrapAsync(async (req, res) => {
 router.post('/', validateCampground, wrapAsync(async (req, res) => {
     const campground = new campModel(req.body.campground)
     await campground.save();
-    req.flash('success', 'Successfully created a new campground!');
+    req.flash('success', 'Successfully created campground!');
     res.redirect(`campgrounds/${campground._id}`);
 }))
 
 router.get('/:id', wrapAsync(async (req, res) => {
     const campground = await campModel.findById(req.params.id).populate('reviews');
+    if (!campground) {
+        req.flash('error', 'Campground does not exist')
+        return res.redirect('/campgrounds');
+    }
     res.render('campgrounds/show', { campground });
 }))
 
 router.get('/:id/edit', wrapAsync(async (req, res) => {
     const campground = await campModel.findById(req.params.id);
+    if (!campground) {
+        req.flash('error', 'Campground does not exist')
+        return res.redirect('/campgrounds');
+    }
     res.render('campgrounds/edit', { campground });
 }))
 
 router.put('/:id', validateCampground, wrapAsync(async (req, res,) => {
     const campground = await campModel.findByIdAndUpdate(req.params.id, { ...req.body.campground });
+    req.flash('success', 'Successfully updated campground');
     res.redirect(`/campgrounds/${campground._id}`);
 }))
 
