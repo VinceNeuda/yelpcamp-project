@@ -1,4 +1,7 @@
 <% layout('layouts/boilerplate')%>
+    <link rel="stylesheet" href="/stylesheets/stars.css">
+
+    <!-- Displays Campground Details -->
     <div class="row">
         <div class="col-6">
             <div class="card mb-5">
@@ -35,15 +38,33 @@
                 </div>
             </div>
         </div>
+
+        <!-- Displays Review Form (When Logged In) -->
         <div class="col-6">
-            <h5>Customer Reviews</h5>
             <% if(currentUser){ %>
-                <form action="/campgrounds/<%= campground._id %>/reviews" method="POST" class="mb-5 validated-form"
+                <h6>Leave a review:</h6>
+                <form class="mb-3 validated-form" action="/campgrounds/<%=campground._id%>/reviews" method="POST"
                     novalidate>
+                    <fieldset class="starability-basic">
+                        <input type="radio" id="no-rate" class="input-no-rate" name="review[rating]" value="1" checked
+                            aria-label="No rating." />
+                        <input type="radio" id="first-rate1" name="review[rating]" value="1" />
+                        <label for="first-rate1" title="Terrible">1 star</label>
+                        <input type="radio" id="first-rate2" name="review[rating]" value="2" />
+                        <label for="first-rate2" title="Not good">2 stars</label>
+                        <input type="radio" id="first-rate3" name="review[rating]" value="3" />
+                        <label for="first-rate3" title="Average">3 stars</label>
+                        <input type="radio" id="first-rate4" name="review[rating]" value="4" />
+                        <label for="first-rate4" title="Very good">4 stars</label>
+                        <input type="radio" id="first-rate5" name="review[rating]" value="5" />
+                        <label for="first-rate5" title="Amazing">5 stars</label>
+                    </fieldset>
                     <div class="mb-3">
-                        <label for="rating" class="form-label">Rating</label>
-                        <input type="range" class="form-range" name="review[rating]" min="1" max="5" step="1"
-                            id="rating">
+                        <input type="text" class="form-control" name="review[title]" id="title" cols="30" rows="1"
+                            placeholder="Title" required></textarea>
+                        <div class="invalid-feedback">
+                            Title cannot be empty!
+                        </div>
                     </div>
                     <div class="mb-3">
                         <textarea class="form-control" name="review[body]" id="body" cols="30" rows="3"
@@ -55,21 +76,30 @@
                     <button class="btn btn-success mb-3">Submit Review</button>
                 </form>
                 <% } %>
-                    <% for(let review of campground.reviews){ %>
+
+                    <!-- Displays Reviews on Campground Show Page -->
+                    <h5>Customer Reviews</h5>
+                    <% for (let review of campground.reviews){ %>
                         <div class="card mb-3">
                             <div class="card-body">
-                                <h5 class="card-title">Rated: <%= review.rating %> stars</h5>
-                                <p class="card-subtitle text-muted">
-                                    by <%= review.author.username %>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h5 class="card-title mb-0">
+                                        <%= review.title %>
+                                    </h5>
+                                    <p class="text-muted small mb-0">by <%= review.author.username %>
+                                    </p>
+                                </div>
+                                <p class="starability-result" data-rating="<%=review.rating%>">
+                                    Rated: <%= review.rating %> stars
                                 </p>
                                 <p class="card-text">
-                                    <%= review.body %>
+                                    <%=review.body %>
                                 </p>
                                 <% if( currentUser && review.author.equals(currentUser)) {%>
                                     <form
-                                        action="/campgrounds/<%= campground._id%>/reviews/<%= review._id %>?_method=DELETE"
+                                        action="/campgrounds/<%=campground._id%>/reviews/<%= review._id %>?_method=DELETE"
                                         method="POST">
-                                        <button class="btn btn-danger btn-sm">delete</button>
+                                        <button class="btn btn-danger btn-sm">Remove</button>
                                     </form>
                                     <% } %>
                             </div>

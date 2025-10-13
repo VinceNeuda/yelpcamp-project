@@ -11,7 +11,6 @@ module.exports.renderNewForm = (req, res) => {
 
 module.exports.createCamp = async (req, res, next) => {
     const campground = new campModel(req.body.campground);
-    campground.images = req.files.map(f => ({ url: f.path, filename: f.filename }));
     campground.author = req.user._id; //association
     await campground.save();
     //console.log(campground);
