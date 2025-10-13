@@ -7,18 +7,17 @@ const campgroundsCtr = require('../controllers/campgrounds');
 const { isLoggedIn, validateCampground, isAuthor } = require('../middleware');
 
 //ROUTES
-router.get('/', wrapAsync(campgroundsCtr.index))
+router.route('/')
+    .get(wrapAsync(campgroundsCtr.index))
+    .post(isLoggedIn, validateCampground, wrapAsync(campgroundsCtr.createCamp))
 
-router.get('/new', isLoggedIn, wrapAsync(campgroundsCtr.renderNewForm))
+router.get('/new', isLoggedIn, campgroundsCtr.renderNewForm) // Create
 
-router.post('/', isLoggedIn, validateCampground, wrapAsync(campgroundsCtr.createCamp))
+router.route('/:id')
+    .get(wrapAsync(campgroundsCtr.showCamp)) // Read / Show
+    .put(isLoggedIn, isAuthor, validateCampground, wrapAsync(campgroundsCtr.updateCamp))
+    .delete(isLoggedIn, isAuthor, wrapAsync(campgroundsCtr.deleteCamp)) // Delete
 
-router.get('/:id', wrapAsync(campgroundsCtr.showCamp))
-
-router.get('/:id/edit', isLoggedIn, isAuthor, wrapAsync(campgroundsCtr.renderEditForm))
-
-router.put('/:id', isLoggedIn, isAuthor, validateCampground, wrapAsync(campgroundsCtr.updateCamp))
-
-router.delete('/:id', isLoggedIn, isAuthor, wrapAsync(campgroundsCtr.deleteCamp))
+router.get('/:id/edit', isLoggedIn, isAuthor, wrapAsync(campgroundsCtr.renderEditForm)) // Update
 
 module.exports = router;
