@@ -3,12 +3,17 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 const Review = require('./review');
 
+const ImageSchema = new Schema({
+    url: String,
+    filename: String
+})
+
 const campgroundSchema = new Schema({
     title: String,
     location: String,
     description: String,
     price: Number,
-    image: String,
+    images: [ImageSchema],
     reviews: [      //one-to-many reference to reviews
         {
             type: Schema.Types.ObjectId,
